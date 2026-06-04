@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConneXtion - Panel de Soporte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard-container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-card) 0%, #1e293b 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-info h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        .badge-supervisor {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .badge-technician {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: var(--accent-blue);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-logout {
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+        }
+
+        .btn-logout:hover {
+            background-color: #dc2626;
+        }
+
+        .dashboard-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .dashboard-content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        .panel-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .panel-card h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .action-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform var(--transition-speed), border-color var(--transition-speed);
+        }
+
+        .action-item:hover {
+            transform: translateX(5px);
+            border-color: var(--accent-blue);
+        }
+
+        .supervisor-theme .action-item:hover {
+            border-color: var(--accent-purple);
+        }
+
+        .action-icon {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background-color: rgba(59, 130, 246, 0.1);
+            border-radius: 8px;
+            color: var(--accent-blue);
+        }
+
+        .supervisor-theme .action-icon {
+            background-color: rgba(139, 92, 246, 0.1);
+            color: var(--accent-purple);
+        }
+
+        .action-details h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .action-details p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .status-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stat-box {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            color: var(--text-main);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container" id="dashboard-wrapper">
+        <header class="dashboard-header">
+            <div class="user-info">
+                <h1 id="welcome-title">Bienvenido</h1>
+                <p id="user-email-text">correo@connextion.com</p>
+                <div id="role-badge-container"></div>
+            </div>
+            <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
+        </header>
+
+        <main class="dashboard-content">
+            <!-- Columna Principal -->
+            <section class="panel-card">
+                <h2 id="actions-title">Acciones del Panel</h2>
+                <div class="action-list" id="action-list-container">
+                    <!-- Dinámico por JS -->
+                </div>
+            </section>
+
+            <!-- Columna Lateral -->
+            <section class="panel-card">
+                <h2>Resumen de Casos</h2>
+                <div class="status-container">
+                    <div class="stat-box">
+                        <div class="stat-value" id="cases-pending-val">--</div>
+                        <div class="stat-label">Pendientes</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="cases-solved-val">--</div>
+                        <div class="stat-label">Resueltos</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Check authentication
+        const email = localStorage.getItem('userEmail');
+        const isSupervisorStr = localStorage.getItem('isSupervisor');
+        const name = localStorage.getItem('userName');
+
+        if (!email) {
+            // Redirect to login if not authenticated
+            window.location.href = 'support-login.html';
+        }
+
+        const isSupervisor = isSupervisorStr === 'true';
+
+        // Apply theme/role modifications
+        const dashboardWrapper = document.getElementById('dashboard-wrapper');
+        const welcomeTitle = document.getElementById('welcome-title');
+        const emailText = document.getElementById('user-email-text');
+        const roleBadgeContainer = document.getElementById('role-badge-container');
+        const actionListContainer = document.getElementById('action-list-container');
+        const pendingVal = document.getElementById('cases-pending-val');
+        const solvedVal = document.getElementById('cases-solved-val');
+
+        welcomeTitle.textContent = `Bienvenido, ${name || 'Usuario'}`;
+        emailText.textContent = email;
+
+        if (isSupervisor) {
+            dashboardWrapper.classList.add('supervisor-theme');
+            roleBadgeContainer.innerHTML = '<span class="role-badge badge-supervisor">Supervisor</span>';
+            pendingVal.textContent = '12';
+            solvedVal.textContent = '48';
+
+            // Supervisor actions list
+            actionListContainer.innerHTML = `
+                <div class="action-item">
+                    <div class="action-icon">📋</div>
+                    <div class="action-details">
+                        <h3>Asignar Casos Pendientes</h3>
+                        <p>Ver tickets de clientes sin resolver y asignarlos a soportistas técnicos.</p>
+                    </div>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon">📊</div>
+                    <div class="action-details">
+                        <h3>Reportes y Estadísticas</h3>
+                        <p>Ver gráficos de rendimiento de soporte y tiempos de resolución.</p>
+                    </div>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon">👥</div>
+                    <div class="action-details">
+                        <h3>Gestionar Personal Técnico</h3>
+                        <p>Administrar roles, áreas de soporte y cuentas de técnicos.</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            roleBadgeContainer.innerHTML = '<span class="role-badge badge-technician">Soporte Técnico</span>';
+            pendingVal.textContent = '4';
+            solvedVal.textContent = '15';
+
+            // Technician actions list
+            actionListContainer.innerHTML = `
+                <div class="action-item">
+                    <div class="action-icon">📥</div>
+                    <div class="action-details">
+                        <h3>Mis Tickets Asignados</h3>
+                        <p>Ver y resolver los casos tecnológicos asignados a tu cuenta.</p>
+                    </div>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon">🔍</div>
+                    <div class="action-details">
+                        <h3>Cola General de Casos</h3>
+                        <p>Ver incidencias globales de los servicios asignados a tu perfil.</p>
+                    </div>
+                </div>
+                <div class="action-item">
+                    <div class="action-icon">⚙️</div>
+                    <div class="action-details">
+                        <h3>Mi Disponibilidad</h3>
+                        <p>Configurar estado de actividad y registrar horas de resolución.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Logout logic
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
