@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConneXtion - Panel del Técnico</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <script>
+        // Proteger ruta
+        const userEmail = localStorage.getItem('userEmail');
+        const isSupervisor = localStorage.getItem('isSupervisor');
+        
+        if (!userEmail) {
+            window.location.href = 'support-login.html';
+        } else if (isSupervisor === 'true') {
+            window.location.href = 'supervisor-dashboard.html';
+        }
+    </script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header del Dashboard -->
+        <header class="dashboard-header">
+            <div class="brand">
+                <div class="logo">ConneXtion</div>
+                <div class="user-info">
+                    Conectado como: <span id="displayEmail">...</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <span class="role-badge role-tech">Técnico</span>
+                <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <!-- Contenido Principal -->
+        <main>
+            <h1 style="font-size: 2rem; margin-bottom: 8px; font-weight: 600;">Bandeja de Trabajo del Técnico</h1>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">
+                Bienvenido al portal técnico. Revise sus asignaciones pendientes, atienda las incidencias críticas reportadas por clientes y proporcione diagnósticos y soluciones.
+            </p>
+
+            <div class="dashboard-grid">
+                <!-- Tarjeta 1 -->
+                <div class="dashboard-card accent-blue">
+                    <h3>Mis Tickets Asignados</h3>
+                    <p>Revise el estado y los detalles de las incidencias activas asignadas a su cuenta para su resolución.</p>
+                    <button class="btn btn-primary" onclick="alert('Mis asignaciones activas se cargarán en el Sprint 2.')">Ver Mis Tickets</button>
+                </div>
+
+                <!-- Tarjeta 2 -->
+                <div class="dashboard-card">
+                    <h3>Tomar Nuevos Casos</h3>
+                    <p>Explore el pool general de tickets de soporte no asignados y tome la responsabilidad de resolverlos.</p>
+                    <button class="btn btn-secondary" onclick="alert('Pool de tickets pendientes de asignación disponible en el Sprint 2.')">Buscar Incidentes</button>
+                </div>
+
+                <!-- Tarjeta 3 -->
+                <div class="dashboard-card">
+                    <h3>Historial de Soluciones</h3>
+                    <p>Consulte la base de datos de soluciones históricas y tickets cerrados anteriormente para documentar diagnósticos.</p>
+                    <button class="btn btn-secondary" onclick="alert('Historial de soluciones disponible en el Sprint 2.')">Consultar Historial</button>
+                </div>
+            </div>
+        </main>
+
+        <footer style="margin-top: 40px;">
+            <p>&copy; 2026 ConneXtion S.A. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mostrar correo institucional del técnico
+            const email = localStorage.getItem('userEmail');
+            if (email) {
+                document.getElementById('displayEmail').textContent = email;
+            }
+
+            // Manejador del botón de cerrar sesión
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('isSupervisor');
+                window.location.href = 'support-login.html';
+            });
+        });
+    </script>
+</body>
+</html>
