@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ConneXtion - Login Administrativo</title>
+    <title>ConneXtion - Login de Soporte</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <style>
@@ -18,6 +18,8 @@
         }
         .input-group {
             margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
         }
     </style>
 </head>
@@ -58,7 +60,7 @@
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
-                // Limpiar mensajes anteriores y ocultar el contenedor
+                // Limpiar mensajes anteriores
                 messageDiv.style.display = 'none';
                 messageDiv.className = '';
                 messageDiv.textContent = '';
@@ -67,11 +69,11 @@
                 const password = document.getElementById('password').value;
 
                 // Agregar estado de carga
-                submitBtn.classList.add('btn-loading');
                 submitBtn.disabled = true;
+                submitBtn.textContent = 'Autenticando...';
 
                 try {
-                    const response = await fetch('http://localhost:8080/Backend/resources/api/v1/support/login', {
+                    const response = await fetch('http://localhost:8080/Gateaway/gateway/support/login', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -80,127 +82,39 @@
                         body: JSON.stringify({ email, password })
                     });
 
-                    let data = {};
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        data = await response.json();
-                    } else {
-                        const text = await response.text();
-                        if (text) {
-                            data = { message: text };
-                        }
-                    }
+                    const data = await response.json();
 
                     if (response.ok) {
-                        // En caso de éxito, guardar en localStorage correo (userEmail) y booleano (isSupervisor)
-                        const userEmail = data.userEmail || data.email || email;
-                        const isSupervisor = data.isSupervisor === true || data.isSupervisor === 'true';
-
-                        localStorage.setItem('userEmail', userEmail);
-                        localStorage.setItem('isSupervisor', isSupervisor.toString());
-
                         messageDiv.textContent = 'Inicio de sesión correcto. Redireccionando...';
                         messageDiv.className = 'success';
                         messageDiv.style.display = 'block';
 
-                        // Redireccionar u orientar el flujo según el rol devuelto (Supervisor vs. Técnico)
+                        // Guardar en localStorage
+                        localStorage.setItem('userEmail', data.email);
+                        localStorage.setItem('isSupervisor', data.isSupervisor);
+                        localStorage.setItem('userName', data.name || '');
+                        localStorage.setItem('supportUserId', data.supportUserId || '');
+
+                        // Redireccionar al dashboard técnico/supervisor después de 1 segundo
                         setTimeout(() => {
-                            if (isSupervisor) {
-                                window.location.href = 'supervisor-dashboard.html';
-                            } else {
-                                window.location.href = 'tech-dashboard.html';
-                            }
+                            window.location.href = 'support-dashboard.html';
                         }, 1000);
 
                     } else {
-                        // Manejo de credenciales inválidas u otro error HTTP
-                        const errorMsg = data.message || 'Credenciales inválidas. Por favor, verifique sus datos.';
-                        messageDiv.textContent = errorMsg;
+                        messageDiv.textContent = data.error || 'Credenciales inválidas.';
                         messageDiv.className = 'error';
                         messageDiv.style.display = 'block';
                     }
                 } catch (error) {
                     console.error('Error de conexión:', error);
-                    messageDiv.textContent = 'Error de conexión. Por favor, asegúrese de que el servicio backend esté activo.';
+                    messageDiv.textContent = 'Error al conectar con el servidor. Asegúrese de que el servicio esté activo.';
                     messageDiv.className = 'error';
                     messageDiv.style.display = 'block';
                 } finally {
-                    // Remover estado de carga del botón
-                    submitBtn.classList.remove('btn-loading');
                     submitBtn.disabled = false;
+                    submitBtn.textContent = 'Ingresar al Portal';
                 }
             });
-        <h2>Portal del Personal de Soporte (CU8)</h2>
-        <form id="login-form">
-            <label for="email">Correo Institucional</label>
-            <input type="email" id="email" required placeholder="correo@connextion.com">
-
-            <label for="password">Contraseña</label>
-            <input type="password" id="password" required placeholder="••••••••">
-
-            <button type="submit" id="submit-btn">Ingresar</button>
-        </form>
-        <div id="message"></div>
-        <p style="text-align: center; margin-top: 20px;"><a href="index.html" style="color: var(--accent-blue); text-decoration: none;">&larr; Volver al Inicio</a></p>
-    </div>
-
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = '';
-            messageDiv.className = '';
-
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            const payload = {
-                email,
-                password
-            };
-
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Autenticando...';
-
-            try {
-                const response = await fetch('http://localhost:8080/Backend/resources/api/v1/support/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    messageDiv.textContent = 'Acceso exitoso. Redireccionando...';
-                    messageDiv.className = 'success';
-
-                    // Save data to localStorage
-                    localStorage.setItem('userEmail', data.email);
-                    localStorage.setItem('isSupervisor', data.isSupervisor);
-                    localStorage.setItem('userName', data.name || '');
-                    localStorage.setItem('supportUserId', data.supportUserId || '');
-
-                    // Redirect to the dashboard
-                    setTimeout(() => {
-                        window.location.href = 'support-dashboard.html';
-                    }, 1000);
-                } else {
-                    messageDiv.textContent = data.error || 'Credenciales inválidas.';
-                    messageDiv.className = 'error';
-                }
-            } catch (error) {
-                console.error('Error de conexión:', error);
-                messageDiv.textContent = 'Error al conectar con el servidor. Verifique su conexión.';
-                messageDiv.className = 'error';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Ingresar';
-            }
         });
     </script>
 </body>
