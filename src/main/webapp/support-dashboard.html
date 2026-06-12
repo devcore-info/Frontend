@@ -190,6 +190,31 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        
+        /* Badge para prioridad Alta (Rojo) */
+        .badge-alta {
+            /* Fondo rojo transparente */
+            background-color: rgba(239, 68, 68, 0.2 ); 
+            /* Texto rojo fuerte */
+            color: #ef4444; 
+            /* Borde rojo */
+            border: 1px solid rgba(239, 68, 0.4); 
+        }
+        
+        /* Badge para prioridad Media (Amarillo) */
+        
+        .badge-media {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e06; 
+            border: 1px solid rgba(255, 255, 0, 0.9); 
+        }
+        
+        /* Badge para prioridad baja (Verde) */
+        .badge-baja {
+           background-color: rgba(0, 255, 0, 0.1); 
+           color: #006400; 
+           border: 1px solid rgba(0, 255, 0, 0.2); 
+        }
     </style>
 </head>
 <body>
@@ -226,6 +251,27 @@
                     </div>
                 </div>
             </section>
+            
+            
+            
+            <!-- Tabla de solicitudes registradas -->
+            <table>
+                <thead>
+                    <tr>
+                        <th> Número </th>
+                        <th> Soportista </th>
+                        <th> Clasificación </th>
+                        <th> Estado </th>
+                        <th> Fecha </th>
+                        <th> Acción </th>
+                    </tr>
+                </thead> 
+                
+                <tbody id="tabla-tickets">
+                </tbody>
+                
+            </table>
+            
         </main>
     </div>
 
@@ -314,12 +360,71 @@
                 </div>
             `;
         }
-
+        
         // Logout logic
         document.getElementById('logout-btn').addEventListener('click', function() {
             localStorage.clear();
             window.location.href = 'index.html';
         });
+        
+        
+        async function cargarBandejaTickets(){
+            try{
+                //1. Realiza petición fetch al endpoint de la API
+                const respuesta = await fetch ("http://localhost:8080/Gateaway/gateway/issues"); 
+                
+                //2. Convierte respuesta a json 
+                const tickets = await respuesta.json(); 
+                
+                //3. Imprime en consola para verificar los datos llegados del servidor
+                console.log("Datos recibidos: ", tickets); 
+                
+                //4. Ordenar el array recibido de forma ascendente mediante el id
+                tickets.sort((a, b) => a.id - b.id); 
+                
+                //5. Captura del cuerpo de la tabla, así sabe donde poner los datos 
+                const tbody = document.getElementById("tabla-tickets"); 
+                
+                //6. Crea una variable vacía para acumular el texto de las filas
+                let filasHTML = ""; 
+                
+                //7. Itera sobre cada ticket del arreglo
+                tickets.forEach(ticket => {
+                    //Lógica para el color del badge 
+                    let claseCss = ""; 
+                    if(ticket.clasificacion === "Alta"){
+                        claseCss = "badge-alta"; 
+                    }else if(ticket.clasificacion === "Media"){
+                        claseCss = "badge-media"; 
+                    }else{
+                        claseCss = "badge-baja"; 
+                    }
+                    
+                    //Luego construimos la fila y la añadimos a filas HTML 
+                    
+                    filasHTML += `
+                        <tr>
+                            <td>${ticket.id}</td>
+                            <td>${ticket.soportista}</td>
+                            <td><span class="role-badge ${claseCSS}">${ticket.clasificacion}</span></td>
+                            <td>${ticket.estado}</td>
+                            <td>${ticket.fecha}</td>
+                            <td><a href="soporte-detalle.html?id=${ticket.id}">Ver</a><td>
+
+                        </tr>
+                        `;
+                }); 
+                
+                //8. Inyectamos todas las filas a la tabla 
+                tbody.innerHTML = filasHTML; 
+            
+            }catch(error){
+                console.error("Error al obtener los tickets: ", error); 
+            }
+        }
+        
+        //Llama a la función al cargar la página 
+        cargarBandejaTickets(); 
     </script>
 </body>
 </html>
