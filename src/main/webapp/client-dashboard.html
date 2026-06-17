@@ -172,6 +172,102 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        /* Estilos de la Tabla Responsiva (CU5) */
+        .tickets-table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .tickets-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            min-width: 600px;
+        }
+
+        .tickets-table th, .tickets-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tickets-table th {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tickets-table tbody tr {
+            transition: background-color var(--transition-speed);
+        }
+
+        .tickets-table tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid transparent;
+        }
+
+        .badge-ingresado {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .badge-asignado {
+            background-color: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .badge-en-progreso {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-resuelto {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        /* Botón de carga */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            margin: auto;
+            border: 3px solid transparent;
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -187,30 +283,30 @@
             <button class="btn-logout" id="logout-btn">Cerrar Sesión</button>
         </header>
 
-        <main class="dashboard-content">
+        <main class="dashboard-content" id="main-dashboard-view">
             <!-- Columna Principal -->
             <section class="panel-card">
                 <h2>Mis Acciones de Soporte</h2>
                 <div class="action-list">
-                    <div class="action-item" onclick="alert('El registro de solicitudes estará disponible en el Sprint 2 (CU4).')">
+                    <div class="action-item" onclick="showView('create-request-view')">
                         <div class="action-icon">➕</div>
                         <div class="action-details">
                             <h3>Ingresar Solicitud (CU4)</h3>
                             <p>Reportar una nueva avería o problema con sus servicios contratados.</p>
                         </div>
                     </div>
-                    <div class="action-item" onclick="alert('La consulta de solicitudes estará disponible en el Sprint 2 (CU5).')">
+                    <div class="action-item" onclick="showView('tickets-list-view')">
                         <div class="action-icon">📋</div>
                         <div class="action-details">
                             <h3>Consultar mis Solicitudes (CU5)</h3>
                             <p>Ver el historial de solicitudes ingresadas y su estado actual (Pendiente, En progreso, Resuelto).</p>
                         </div>
                     </div>
-                    <div class="action-item" onclick="alert('La adición de comentarios estará disponible en el Sprint 2 (CU6).')">
+                    <div class="action-item" onclick="showView('tickets-list-view')">
                         <div class="action-icon">💬</div>
                         <div class="action-details">
                             <h3>Agregar Comentarios (CU6)</h3>
-                            <p>Ver detalles de una solicitud activa y agregar nuevos comentarios.</p>
+                            <p>Ver detalles de una solicitud activa y agregar nuevos comentarios desde el detalle.</p>
                         </div>
                     </div>
                 </div>
@@ -231,6 +327,64 @@
                 </div>
             </section>
         </main>
+
+        <!-- Vista Formulario de Creación (CU4) -->
+        <main class="dashboard-content" id="create-request-view" style="display: none;">
+            <section class="panel-card" style="grid-column: 1 / -1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                    <h2>Ingresar Solicitud de Soporte (CU4)</h2>
+                    <button class="btn btn-secondary" onclick="showView('main-dashboard-view')" style="width: auto; padding: 8px 16px;">Volver</button>
+                </div>
+                
+                <form id="create-issue-form" style="max-width: 650px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px;">
+                    <div style="display: flex; flex-direction: column;">
+                        <label for="issue-description" style="font-weight: 600; margin-bottom: 6px; font-size: 0.95rem;">Descripción del Problema *</label>
+                        <textarea id="issue-description" rows="4" placeholder="Describa el problema o avería detalladamente..." required style="width: 100%; padding: 12px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-family: inherit; font-size: 1rem; outline: none; transition: border-color var(--transition-speed); resize: vertical;"></textarea>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <label for="issue-service" style="font-weight: 600; margin-bottom: 6px; font-size: 0.95rem;">Servicio Afectado *</label>
+                        <select id="issue-service" required style="width: 100%; padding: 12px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-family: inherit; font-size: 1rem; outline: none; transition: border-color var(--transition-speed);">
+                            <option value="" disabled selected>Cargando servicios contratados...</option>
+                        </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 16px;">
+                        <!-- For layout on larger screens -->
+                        <div style="display: flex; flex-direction: column;">
+                            <label for="issue-phone" style="font-weight: 600; margin-bottom: 6px; font-size: 0.95rem;">Teléfono de Contacto (Opcional)</label>
+                            <input type="tel" id="issue-phone" placeholder="Ej: 8888-9999" style="width: 100%; padding: 12px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-family: inherit; font-size: 1rem; outline: none; transition: border-color var(--transition-speed);">
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <label for="issue-email" style="font-weight: 600; margin-bottom: 6px; font-size: 0.95rem;">Correo de Contacto (Opcional)</label>
+                            <input type="email" id="issue-email" placeholder="Ej: cliente@correo.com" style="width: 100%; padding: 12px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-family: inherit; font-size: 1rem; outline: none; transition: border-color var(--transition-speed);">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column;">
+                        <label for="issue-address" style="font-weight: 600; margin-bottom: 6px; font-size: 0.95rem;">Dirección de Referencia (Opcional)</label>
+                        <input type="text" id="issue-address" placeholder="Provincia, cantón, señas particulares" style="width: 100%; padding: 12px; background-color: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-main); font-family: inherit; font-size: 1rem; outline: none; transition: border-color var(--transition-speed);">
+                    </div>
+
+                    <button type="submit" id="submit-issue-btn" class="btn btn-primary" style="margin-top: 10px; width: 100%; padding: 14px;">Ingresar Solicitud</button>
+                    <div id="create-issue-message" style="margin-top: 10px; text-align: center; font-weight: 600; font-size: 0.95rem;"></div>
+                </form>
+            </section>
+        </main>
+
+        <!-- Vista Listado de Solicitudes (CU5) -->
+        <main class="dashboard-content" id="tickets-list-view" style="display: none;">
+            <section class="panel-card" style="grid-column: 1 / -1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+                    <h2>Mis Solicitudes Reportadas (CU5)</h2>
+                    <button class="btn btn-secondary" onclick="showView('main-dashboard-view')" style="width: auto; padding: 8px 16px;">Volver</button>
+                </div>
+
+                <div class="tickets-table-wrapper" id="tickets-table-container">
+                    <!-- Populated dynamically -->
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
@@ -238,8 +392,9 @@
             // Check authentication
             const email = localStorage.getItem('userEmail');
             const name = localStorage.getItem('userName');
+            const clientId = localStorage.getItem('clientId');
 
-            if (!email) {
+            if (!email || !clientId) {
                 window.location.href = 'client-login.html';
                 return;
             }
@@ -247,12 +402,246 @@
             document.getElementById('welcome-title').textContent = `Bienvenido, ${name || 'Cliente'}`;
             document.getElementById('user-email-text').textContent = email;
 
+            // Pre-fill email in creation form if present
+            document.getElementById('issue-email').value = email;
+
+            // Load dashboard statistics
+            loadStats();
+
+            // Form submission event
+            document.getElementById('create-issue-form').addEventListener('submit', handleCreateIssue);
+
             // Logout logic (CU3)
             document.getElementById('logout-btn').addEventListener('click', function() {
                 localStorage.clear();
                 window.location.href = 'index.html';
             });
         });
+
+        // View manager function
+        function showView(viewId) {
+            document.getElementById('main-dashboard-view').style.display = viewId === 'main-dashboard-view' ? 'grid' : 'none';
+            document.getElementById('create-request-view').style.display = viewId === 'create-request-view' ? 'block' : 'none';
+            document.getElementById('tickets-list-view').style.display = viewId === 'tickets-list-view' ? 'block' : 'none';
+
+            if (viewId === 'main-dashboard-view') {
+                loadStats();
+            } else if (viewId === 'create-request-view') {
+                loadServices();
+            } else if (viewId === 'tickets-list-view') {
+                loadTicketsList();
+            }
+        }
+
+        // Expose showView to HTML onclick scope
+        window.showView = showView;
+
+        // Load services dynamic list
+        async function loadServices() {
+            const clientId = localStorage.getItem('clientId');
+            const selectEl = document.getElementById('issue-service');
+            selectEl.innerHTML = '<option value="" disabled selected>Cargando servicios contratados...</option>';
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/clients/${clientId}/services`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar servicios');
+                }
+                const services = await response.json();
+                
+                selectEl.innerHTML = '<option value="" disabled selected>Seleccione un servicio...</option>';
+                if (!services || services.length === 0) {
+                    selectEl.innerHTML = '<option value="" disabled>No tiene servicios contratados (IDs 1-4)</option>';
+                    return;
+                }
+                
+                services.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = s.name;
+                    selectEl.appendChild(opt);
+                });
+            } catch (err) {
+                console.error(err);
+                // Fallback: load static list 1-4 if backend is not available during load
+                selectEl.innerHTML = `
+                    <option value="" disabled>Error al conectar. Usando servicios por defecto...</option>
+                    <option value="1">Telefonía móvil</option>
+                    <option value="2">Cable</option>
+                    <option value="3">Internet</option>
+                    <option value="4">Telefonía fija</option>
+                `;
+            }
+        }
+
+        // Post request to register issue (CU4)
+        async function handleCreateIssue(e) {
+            e.preventDefault();
+
+            const clientId = parseInt(localStorage.getItem('clientId'), 10);
+            const description = document.getElementById('issue-description').value.trim();
+            const serviceId = parseInt(document.getElementById('issue-service').value, 10);
+            const contactPhone = document.getElementById('issue-phone').value.trim() || null;
+            const contactEmail = document.getElementById('issue-email').value.trim() || null;
+            const address = document.getElementById('issue-address').value.trim() || null;
+
+            const submitBtn = document.getElementById('submit-issue-btn');
+            const msgDiv = document.getElementById('create-issue-message');
+
+            msgDiv.textContent = '';
+            msgDiv.className = '';
+            submitBtn.classList.add('btn-loading');
+            submitBtn.disabled = true;
+
+            const payload = {
+                description,
+                contactPhone,
+                contactEmail,
+                address,
+                clientId,
+                serviceId
+            };
+
+            try {
+                const response = await fetch('http://localhost:8080/Gateaway/gateway/issues', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (response.ok || response.status === 201) {
+                    msgDiv.textContent = '¡Solicitud registrada con éxito! Caso #' + (data.issueId || '');
+                    msgDiv.className = 'success';
+                    document.getElementById('create-issue-form').reset();
+                    
+                    // Pre-fill email again
+                    document.getElementById('issue-email').value = localStorage.getItem('userEmail');
+
+                    setTimeout(() => {
+                        showView('main-dashboard-view');
+                        msgDiv.textContent = '';
+                        msgDiv.className = '';
+                    }, 2500);
+                } else {
+                    msgDiv.textContent = data.error || 'Error al registrar la solicitud.';
+                    msgDiv.className = 'error';
+                }
+            } catch (err) {
+                console.error(err);
+                msgDiv.textContent = 'Error de conexión con la API Gateway.';
+                msgDiv.className = 'error';
+            } finally {
+                submitBtn.classList.remove('btn-loading');
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Get and render tickets list (CU5)
+        async function loadTicketsList() {
+            const clientId = localStorage.getItem('clientId');
+            const container = document.getElementById('tickets-table-container');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">Cargando solicitudes...</p>';
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/client/${clientId}`);
+                if (!response.ok) {
+                    throw new Error('Error al cargar tickets');
+                }
+                const tickets = await response.json();
+
+                if (!tickets || tickets.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 40px; font-style: italic;">No tiene solicitudes registradas.</p>';
+                    return;
+                }
+
+                let html = `
+                    <table class="tickets-table">
+                        <thead>
+                            <tr>
+                                <th>Número (#)</th>
+                                <th>Servicio Afectado</th>
+                                <th>Fecha de Registro</th>
+                                <th>Estado</th>
+                                <th style="text-align: center;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+                tickets.forEach(ticket => {
+                    const ticketId = ticket.id;
+                    const serviceName = ticket.serviceName || 'Servicio';
+                    
+                    const dateStr = ticket.registerTimestamp 
+                        ? new Date(ticket.registerTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+                        : 'No especificada';
+                    
+                    const status = ticket.status || 'Ingresado';
+                    let badgeClass = 'badge-ingresado';
+                    const lowerStatus = status.toLowerCase();
+                    if (lowerStatus === 'asignado') badgeClass = 'badge-asignado';
+                    else if (lowerStatus === 'en progreso') badgeClass = 'badge-en-progreso';
+                    else if (lowerStatus === 'resuelto' || lowerStatus === 'finalizado') badgeClass = 'badge-resuelto';
+
+                    html += `
+                        <tr>
+                            <td>#${ticketId}</td>
+                            <td style="font-weight: 600;">${serviceName}</td>
+                            <td style="color: var(--text-muted);">${dateStr}</td>
+                            <td><span class="badge ${badgeClass}">${status}</span></td>
+                            <td style="text-align: center;">
+                                <a href="client-ticket-detail.html?id=${ticketId}" class="btn btn-primary" style="width: auto; padding: 6px 14px; font-size: 0.85rem; display: inline-block;">Ver Detalle</a>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += `
+                        </tbody>
+                    </table>
+                `;
+                container.innerHTML = html;
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<p style="text-align: center; color: var(--error); padding: 20px;">Error al cargar las solicitudes. Verifique la conexión con el servidor.</p>';
+            }
+        }
+
+        // Load statistics for dashboard counters
+        async function loadStats() {
+            const clientId = localStorage.getItem('clientId');
+            if (!clientId) return;
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/client/${clientId}`);
+                if (!response.ok) return;
+
+                const tickets = await response.json();
+
+                let pendingCount = 0;
+                let solvedCount = 0;
+
+                tickets.forEach(t => {
+                    const status = (t.status || '').toLowerCase();
+                    if (status === 'resuelto' || status === 'finalizado') {
+                        solvedCount++;
+                    } else {
+                        pendingCount++;
+                    }
+                });
+
+                document.getElementById('cases-pending-val').textContent = pendingCount;
+                document.getElementById('cases-solved-val').textContent = solvedCount;
+
+            } catch (err) {
+                console.error('Error loading stats:', err);
+            }
+        }
     </script>
 </body>
 </html>
