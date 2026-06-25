@@ -559,6 +559,7 @@
                     <div class="tabs-header">
                         <button class="tab-btn active" onclick="switchTab('comments-tab', this)">Comentarios Públicos</button>
                         <button class="tab-btn" onclick="switchTab('notes-tab', this)">Notas Internas (Soporte)</button>
+                        <button class="tab-btn" onclick="switchTab('bitacora-tab', this)">Bitácora de Cambios</button>
                     </div>
 
                     <!-- Tab: Comments -->
@@ -592,6 +593,16 @@
                                 <button type="submit" id="submit-note-btn">Guardar Nota</button>
                             </div>
                         </form>
+                    </div>
+
+                    <!-- Tab: Bitacora -->
+                    <div id="bitacora-tab" class="tab-content">
+                        <div style="background-color: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 0.85rem; color: #a78bfa; line-height: 1.4;">
+                            📋 <strong>Bitácora de Cambios:</strong> Historial completo de auditoría y transiciones de estado procesadas de forma concurrente en el backend.
+                        </div>
+                        <div class="thread-container" id="bitacora-thread-container">
+                            <!-- Bitacora populated dynamically -->
+                        </div>
                     </div>
                 </section>
             </main>
@@ -667,6 +678,12 @@
                 }
                 const data = await response.json();
                 renderTicket(data);
+                
+                // Load Bitacora history logs
+                await loadBitacoraLogs();
+
+                // Connect to WebSocket chat endpoint
+                connectWebSocket();
             } catch (error) {
                 console.error(error);
                 showError('No se pudieron cargar los detalles del ticket. Verifique el estado de la API Gateway.');
@@ -733,9 +750,12 @@
         }
 
         // Render Comments Thread
+        const renderedCommentIds = new Set();
+
         function renderComments(comments) {
             const container = document.getElementById('comments-thread-container');
             container.innerHTML = '';
+            renderedCommentIds.clear();
 
             if (comments.length === 0) {
                 container.innerHTML = `
@@ -751,28 +771,72 @@
             const sortedComments = [...comments].sort((a, b) => new Date(a.commentTimestamp) - new Date(b.commentTimestamp));
 
             sortedComments.forEach(comment => {
-                const isClient = comment.userType === 'CLIENT';
-                const bubble = document.createElement('div');
-                bubble.className = `comment-bubble ${isClient ? 'comment-client' : 'comment-support'}`;
-
-                const timeStr = comment.commentTimestamp 
-                    ? new Date(comment.commentTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
-                    : '';
-
-                const authorName = comment.userName || (isClient ? 'Cliente' : 'Soporte Técnico');
-                const authorClass = isClient ? 'comment-author-client' : 'comment-author-support';
-
-                bubble.innerHTML = `
-                    <div class="comment-meta">
-                        <span class="${authorClass}">${authorName} ${!isClient ? '(Soporte)' : ''}</span>
-                        <span>${timeStr}</span>
-                    </div>
-                    <div class="comment-text">${comment.description || ''}</div>
-                `;
-                container.appendChild(bubble);
+                appendSingleComment(comment);
             });
+        }
 
+        // Real-time single comment appender for support view
+        function appendSingleComment(comment) {
+            if (!comment || !comment.id) return;
+            if (renderedCommentIds.has(comment.id)) return;
+
+            const container = document.getElementById('comments-thread-container');
+            
+            // Remove empty placeholder
+            const emptyEl = container.querySelector('.empty-thread');
+            if (emptyEl) {
+                container.innerHTML = '';
+            }
+
+            renderedCommentIds.add(comment.id);
+
+            const isClient = comment.userType === 'CLIENT';
+            const bubble = document.createElement('div');
+            bubble.className = `comment-bubble ${isClient ? 'comment-client' : 'comment-support'}`;
+
+            const timeStr = comment.commentTimestamp 
+                ? new Date(comment.commentTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+                : new Date().toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' });
+
+            const authorName = comment.userName || (isClient ? 'Cliente' : 'Soporte Técnico');
+            const authorClass = isClient ? 'comment-author-client' : 'comment-author-support';
+
+            bubble.innerHTML = `
+                <div class="comment-meta">
+                    <span class="${authorClass}">${authorName} ${!isClient ? '(Soporte)' : ''}</span>
+                    <span>${timeStr}</span>
+                </div>
+                <div class="comment-text">${comment.description || ''}</div>
+            `;
+            container.appendChild(bubble);
             container.scrollTop = container.scrollHeight;
+        }
+
+        // WebSocket Connection for Support Staff
+        let socket;
+        function connectWebSocket() {
+            if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
+            
+            const wsUrl = `ws://localhost:8080/Backend/chat-socket/${ticketId}/SUPPORT/${supportUserId}`;
+            socket = new WebSocket(wsUrl);
+
+            socket.onmessage = function(event) {
+                try {
+                    const comment = JSON.parse(event.data);
+                    appendSingleComment(comment);
+                } catch (e) {
+                    console.error("Error parsing websocket comment:", e);
+                }
+            };
+
+            socket.onclose = function() {
+                console.log("WebSocket connection closed for support, retrying in 5 seconds...");
+                setTimeout(connectWebSocket, 5000);
+            };
+
+            socket.onerror = function(err) {
+                console.error("WebSocket error for support:", err);
+            };
         }
 
         // Render Notes Thread (CU13)
@@ -814,7 +878,7 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        // Add public comment
+        // Add public comment via WebSocket
         async function handleAddComment(e) {
             e.preventDefault();
 
@@ -825,40 +889,20 @@
             const text = textInput.value.trim();
             if (!text) return;
 
-            const payload = {
-                description: text,
-                userType: 'SUPPORT',
-                userId: supportUserId
-            };
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Enviando...';
-            formMessage.textContent = '';
-
-            try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/comments`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!response.ok) throw new Error('Error al agregar comentario');
-
-                textInput.value = '';
-                formMessage.textContent = '¡Comentario agregado!';
-                formMessage.style.color = '#10b981';
-
-                await loadTicketDetails();
-
-                setTimeout(() => { formMessage.textContent = ''; }, 3000);
-            } catch (err) {
-                console.error(err);
-                formMessage.textContent = 'Error al enviar. Intente de nuevo.';
-                formMessage.style.color = '#ef4444';
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Enviar Mensaje';
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                formMessage.textContent = 'Reconectando chat...';
+                formMessage.style.color = '#fbbf24';
+                connectWebSocket();
+                return;
             }
+
+            // Send via WebSocket
+            socket.send(JSON.stringify({ description: text }));
+            textInput.value = '';
+            
+            formMessage.textContent = 'Mensaje enviado';
+            formMessage.style.color = '#10b981';
+            setTimeout(() => { formMessage.textContent = ''; }, 2000);
         }
 
         // Add internal note (CU13)
@@ -1036,6 +1080,54 @@
             } finally {
                 statusBtn.disabled = false;
                 statusBtn.textContent = 'Actualizar';
+            }
+        }
+
+        // Fetch & Render Bitacora Logs (Audit History)
+        async function loadBitacoraLogs() {
+            const container = document.getElementById('bitacora-thread-container');
+            container.innerHTML = '';
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/bitacora`);
+                if (!response.ok) throw new Error('Error al obtener bitácora');
+                
+                const list = await response.json();
+                if (list.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-thread">
+                            <div style="font-size: 2.5rem; opacity: 0.5;">📋</div>
+                            <p>No hay registros de bitácora para este caso.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.forEach(entry => {
+                    const row = document.createElement('div');
+                    row.className = 'note-bubble';
+                    row.style.alignSelf = 'flex-start';
+                    row.style.maxWidth = '100%';
+                    row.style.backgroundColor = 'rgba(139, 92, 246, 0.05)';
+                    row.style.borderColor = 'rgba(139, 92, 246, 0.25)';
+
+                    const timeStr = entry.changeTimestamp 
+                        ? new Date(entry.changeTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+                        : '';
+
+                    row.innerHTML = `
+                        <div class="comment-meta">
+                            <span style="color: #c084fc;">👤 ${entry.changedBy} (${entry.actionType})</span>
+                            <span>${timeStr}</span>
+                        </div>
+                        <div class="comment-text" style="font-family: monospace; font-size: 0.9rem;">${entry.description}</div>
+                    `;
+                    container.appendChild(row);
+                });
+                container.scrollTop = container.scrollHeight;
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = '<p style="color:#ef4444; text-align:center;">Error al cargar el historial de bitácora.</p>';
             }
         }
 
