@@ -392,25 +392,29 @@
                 tickets.forEach(ticket => {
                     //Lógica para el color del badge 
                     let claseCss = ""; 
-                    if(ticket.clasificacion === "Alta"){
+                    const classification = ticket.classification || "Media";
+                    if(classification === "Alta"){
                         claseCss = "badge-alta"; 
-                    }else if(ticket.clasificacion === "Media"){
+                    }else if(classification === "Media"){
                         claseCss = "badge-media"; 
                     }else{
                         claseCss = "badge-baja"; 
                     }
                     
+                    const dateStr = ticket.registerTimestamp 
+                        ? new Date(ticket.registerTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+                        : 'No especificada';
+                    
                     //Luego construimos la fila y la añadimos a filas HTML 
                     
                     filasHTML += `
                         <tr>
-                            <td>${ticket.id}</td>
-                            <td>${ticket.soportista}</td>
-                            <td><span class="role-badge ${claseCSS}">${ticket.clasificacion}</span></td>
-                            <td>${ticket.estado}</td>
-                            <td>${ticket.fecha}</td>
-                            <td><a href="soporte-detalle.html?id=${ticket.id}">Ver</a><td>
-
+                            <td>#${ticket.id}</td>
+                            <td>${ticket.supportUserAssignedName || 'Sin asignar'}</td>
+                            <td><span class="role-badge ${claseCss}">${classification}</span></td>
+                            <td>${ticket.status || 'Ingresado'}</td>
+                            <td>${dateStr}</td>
+                            <td><a href="soporte-detalle.html?id=${ticket.id}" class="btn btn-primary" style="width: auto; padding: 6px 14px; font-size: 0.85rem; display: inline-block;">Ver Detalle</a></td>
                         </tr>
                         `;
                 }); 

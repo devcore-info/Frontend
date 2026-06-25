@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ConneXtion - Detalle de Caso (Soporte)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .detail-container {
+            width: 100%;
+            max-width: 1000px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 20px;
+            margin: 0 auto;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--bg-card) 0%, #2e1065 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .ticket-info h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .ticket-meta {
+            display: flex;
+            gap: 16px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .ticket-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid transparent;
+        }
+
+        .badge-status {
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+            border: 1px solid rgba(139, 92, 246, 0.4);
+        }
+
+        .badge-status.resuelto {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .badge-status.en-progreso {
+            background-color: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 900px) {
+            .detail-grid {
+                grid-template-columns: 1.1fr 1.9fr;
+            }
+        }
+
+        .section-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .section-card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+
+        .data-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .data-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .data-value {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+        }
+
+        .data-value-block {
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* Tabs setup for Comments and Notes */
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all var(--transition-speed);
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-purple);
+            border-bottom-color: var(--accent-purple);
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        /* Comments/Notes lists */
+        .thread-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-right: 8px;
+            margin-bottom: 20px;
+            min-height: 250px;
+        }
+
+        .thread-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .thread-container::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 3px;
+        }
+
+        .thread-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .comment-bubble {
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 85%;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            word-break: break-word;
+        }
+
+        .comment-client {
+            background-color: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .comment-support {
+            background-color: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .note-bubble {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+            word-break: break-word;
+        }
+
+        .comment-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .comment-author-client {
+            color: var(--accent-blue);
+        }
+
+        .comment-author-support {
+            color: var(--accent-purple);
+        }
+
+        .note-author {
+            color: #f59e0b;
+        }
+
+        .comment-text {
+            color: var(--text-main);
+        }
+
+        .empty-thread {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 40px 0;
+            font-style: italic;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            height: 100%;
+        }
+
+        /* Forms styling */
+        .action-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        .action-form textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            resize: vertical;
+            transition: border-color var(--transition-speed);
+        }
+
+        .action-form textarea:focus {
+            border-color: var(--accent-purple);
+        }
+
+        .action-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .action-form button {
+            padding: 10px 20px;
+            background-color: var(--accent-purple);
+            color: var(--text-main);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+        }
+
+        .action-form button:hover {
+            background-color: var(--accent-purple-hover);
+        }
+
+        .action-form button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: color var(--transition-speed);
+            align-self: flex-start;
+        }
+
+        .back-btn:hover {
+            color: var(--text-main);
+        }
+
+        #error-message {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            padding: 16px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 80px 0;
+            font-size: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(139, 92, 246, 0.1);
+            border-left-color: var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .select-input, .text-input {
+            padding: 10px;
+            background-color: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color var(--transition-speed);
+            width: 100%;
+        }
+
+        .select-input:focus, .text-input:focus {
+            border-color: var(--accent-purple);
+        }
+
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-inline {
+            padding: 10px 18px;
+            background-color: var(--accent-purple);
+            color: var(--text-main);
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color var(--transition-speed);
+            white-space: nowrap;
+        }
+
+        .btn-inline:hover {
+            background-color: var(--accent-purple-hover);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="detail-container">
+        <a href="support-dashboard.html" class="back-btn">&larr; Volver al Panel</a>
+        
+        <div id="error-message"></div>
+
+        <!-- Loader -->
+        <div id="loader" class="loading">
+            <div class="spinner"></div>
+            <p>Cargando detalles del caso...</p>
+        </div>
+
+        <!-- Detail Content (Hidden until loaded) -->
+        <div id="dashboard-content" style="display: none; display: flex; flex-direction: column; gap: 24px;">
+            <!-- Header section -->
+            <header class="detail-header">
+                <div class="ticket-info">
+                    <h1 id="ticket-title">Caso #--</h1>
+                    <div class="ticket-meta">
+                        <span id="ticket-service">Servicio: --</span>
+                        <span id="ticket-date">Registrado el: --</span>
+                    </div>
+                </div>
+                <div id="ticket-status-container">
+                    <span class="badge badge-status" id="ticket-status">--</span>
+                </div>
+            </header>
+
+            <!-- Grid for details and comments/notes -->
+            <main class="detail-grid">
+                <!-- Left column: Ticket Info & Management -->
+                <div style="display: flex; flex-direction: column; gap: 24px;">
+                    <!-- Data card -->
+                    <section class="section-card">
+                        <h2>Datos del Reporte</h2>
+                        
+                        <div class="data-item">
+                            <span class="data-label">Descripción del Cliente</span>
+                            <div class="data-value-block" id="ticket-description">--</div>
+                        </div>
+
+                        <div class="data-item">
+                            <span class="data-label">Cliente</span>
+                            <span class="data-value" id="client-name">--</span>
+                        </div>
+
+                        <div class="data-item">
+                            <span class="data-label">Dirección</span>
+                            <span class="data-value" id="client-address">--</span>
+                        </div>
+
+                        <div class="data-item">
+                            <span class="data-label">Teléfono de Contacto</span>
+                            <span class="data-value" id="client-phone">--</span>
+                        </div>
+
+                        <div class="data-item">
+                            <span class="data-label">Correo de Contacto</span>
+                            <span class="data-value" id="client-email">--</span>
+                        </div>
+
+                        <div class="data-item">
+                            <span class="data-label">Prioridad / Clasificación</span>
+                            <span class="data-value" id="ticket-classification" style="font-weight: 600;">--</span>
+                        </div>
+
+                        <div class="data-item">
+                            <span class="data-label">Soportista Asignado</span>
+                            <span class="data-value" id="support-assigned" style="font-weight: 600;">--</span>
+                        </div>
+
+                        <div class="data-item" id="resolution-comment-item" style="display: none;">
+                            <span class="data-label">Comentario de Resolución</span>
+                            <div class="data-value-block" id="resolution-comment" style="border-color: rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.05);">--</div>
+                        </div>
+                    </section>
+
+                    <!-- Management Actions (Supervisor / Soportista) -->
+                    <section class="section-card" id="actions-card">
+                        <h2>Gestión del Caso</h2>
+                        
+                        <!-- Supervisor: Assign Technician -->
+                        <div class="form-row" id="assign-technician-group" style="display: none;">
+                            <label class="data-label">Asignar Personal Técnico (Supervisor)</label>
+                            <div class="control-group">
+                                <select id="technician-select" class="select-input">
+                                    <option value="" disabled selected>Cargando técnicos...</option>
+                                </select>
+                                <button id="assign-btn" class="btn-inline">Asignar</button>
+                            </div>
+                            <div id="assign-message" style="font-size: 0.9rem; font-weight: 600;"></div>
+                        </div>
+
+                        <!-- Soportista / Supervisor: Change Status -->
+                        <div class="form-row">
+                            <label class="data-label">Cambiar Estado del Caso</label>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div class="control-group">
+                                    <select id="status-select" class="select-input">
+                                        <option value="Asignado">Asignado</option>
+                                        <option value="En progreso">En progreso</option>
+                                        <option value="Resuelto">Resuelto</option>
+                                    </select>
+                                    <button id="status-btn" class="btn-inline">Actualizar</button>
+                                </div>
+                                <div id="resolution-textarea-container" style="display: none; flex-direction: column; gap: 6px;">
+                                    <label class="data-label" style="font-size: 0.8rem; color: #f87171;">Detalle de la Solución * (Obligatorio para Resolver)</label>
+                                    <textarea id="status-resolution-comment" placeholder="Describa el diagnóstico técnico y la solución aplicada al cliente..." class="text-input" style="min-height: 80px;"></textarea>
+                                </div>
+                            </div>
+                            <div id="status-message" style="font-size: 0.9rem; font-weight: 600;"></div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Right column: Public Comments & Internal Notes -->
+                <section class="section-card" style="display: flex; flex-direction: column;">
+                    <div class="tabs-header">
+                        <button class="tab-btn active" onclick="switchTab('comments-tab', this)">Comentarios Públicos</button>
+                        <button class="tab-btn" onclick="switchTab('notes-tab', this)">Notas Internas (Soporte)</button>
+                    </div>
+
+                    <!-- Tab: Comments -->
+                    <div id="comments-tab" class="tab-content active">
+                        <div class="thread-container" id="comments-thread-container">
+                            <!-- Comments populated dynamically -->
+                        </div>
+
+                        <form class="action-form" id="new-comment-form">
+                            <textarea id="comment-text-input" placeholder="Escriba un mensaje para enviarle al cliente..." required></textarea>
+                            <div class="action-actions">
+                                <span id="comment-form-message" style="font-size: 0.9rem;"></span>
+                                <button type="submit" id="submit-comment-btn">Enviar Mensaje</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Tab: Notes -->
+                    <div id="notes-tab" class="tab-content">
+                        <div style="background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 0.85rem; color: #fbbf24; line-height: 1.4;">
+                            ⚠️ <strong>Nota:</strong> Este hilo es confidencial y de uso exclusivo del personal de soporte técnico. El cliente no tiene acceso a esta bitácora interna.
+                        </div>
+                        <div class="thread-container" id="notes-thread-container">
+                            <!-- Notes populated dynamically -->
+                        </div>
+
+                        <form class="action-form" id="new-note-form">
+                            <textarea id="note-text-input" placeholder="Documente notas técnicas de diagnóstico, bitácora o bitácoras de avance..." required></textarea>
+                            <div class="action-actions">
+                                <span id="note-form-message" style="font-size: 0.9rem;"></span>
+                                <button type="submit" id="submit-note-btn">Guardar Nota</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Retrieve params
+        const urlParams = new URLSearchParams(window.location.search);
+        const ticketId = urlParams.get('id') || urlParams.get('ticketId');
+
+        // Retrieve auth state
+        const email = localStorage.getItem('userEmail');
+        const isSupervisorStr = localStorage.getItem('isSupervisor');
+        const isSupervisor = isSupervisorStr === 'true';
+        const supportUserId = parseInt(localStorage.getItem('supportUserId') || '1', 10);
+        const supportUserName = localStorage.getItem('userName') || '';
+
+        const loader = document.getElementById('loader');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const errorMessage = document.getElementById('error-message');
+
+        if (!email) {
+            window.location.href = 'support-login.html';
+        } else if (!ticketId) {
+            showError('Error: No se especificó un número de ticket en la URL.');
+        } else {
+            initPage();
+        }
+
+        function showError(msg) {
+            loader.style.display = 'none';
+            dashboardContent.style.display = 'none';
+            errorMessage.textContent = msg;
+            errorMessage.style.display = 'block';
+        }
+
+        async function initPage() {
+            try {
+                // Load ticket details
+                await loadTicketDetails();
+
+                // Setup supervisor actions if applicable
+                if (isSupervisor) {
+                    document.getElementById('assign-technician-group').style.display = 'block';
+                    await loadTechnicianList();
+                }
+
+                // Add resolution comment display toggle
+                document.getElementById('status-select').addEventListener('change', function(e) {
+                    const toggle = e.target.value === 'Resuelto';
+                    document.getElementById('resolution-textarea-container').style.display = toggle ? 'flex' : 'none';
+                });
+
+                // Attach form handlers
+                document.getElementById('new-comment-form').addEventListener('submit', handleAddComment);
+                document.getElementById('new-note-form').addEventListener('submit', handleAddNote);
+                document.getElementById('assign-btn').addEventListener('click', handleAssignTechnician);
+                document.getElementById('status-btn').addEventListener('click', handleUpdateStatus);
+
+            } catch (error) {
+                console.error(error);
+                showError('Error de inicialización de la página. Asegúrese de que el servidor esté encendido.');
+            }
+        }
+
+        // Fetch & render ticket details
+        async function loadTicketDetails() {
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}`);
+                if (!response.ok) {
+                    throw new Error(`Servidor retornó código de estado ${response.status}`);
+                }
+                const data = await response.json();
+                renderTicket(data);
+            } catch (error) {
+                console.error(error);
+                showError('No se pudieron cargar los detalles del ticket. Verifique el estado de la API Gateway.');
+            }
+        }
+
+        function renderTicket(data) {
+            loader.style.display = 'none';
+            dashboardContent.style.display = 'flex';
+
+            const issue = data.issue || {};
+            const comments = data.comments || [];
+            const notes = data.notes || [];
+
+            // Header info
+            document.getElementById('ticket-title').textContent = `Caso #${issue.id || ticketId}`;
+            document.getElementById('ticket-service').textContent = `Servicio: ${issue.serviceName || 'No especificado'}`;
+            
+            const dateStr = issue.registerTimestamp 
+                ? new Date(issue.registerTimestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+                : 'No especificada';
+            document.getElementById('ticket-date').textContent = `Registrado el: ${dateStr}`;
+
+            // Status Badge
+            const statusVal = issue.status || 'Ingresado';
+            const statusEl = document.getElementById('ticket-status');
+            statusEl.textContent = statusVal;
+            statusEl.className = 'badge badge-status'; // reset
+            if (statusVal.toLowerCase() === 'resuelto' || statusVal.toLowerCase() === 'finalizado') {
+                statusEl.classList.add('resuelto');
+            } else if (statusVal.toLowerCase() === 'en progreso' || statusVal.toLowerCase() === 'asignado') {
+                statusEl.classList.add('en-progreso');
+            }
+
+            // Sync status select dropdown to current status if not already Resuelto
+            const statusSelect = document.getElementById('status-select');
+            if (statusVal === 'Ingresado') {
+                // If it is Ingresado, add option dynamically if not present or select Asignado as fallback
+                statusSelect.value = 'Asignado';
+            } else if (['Asignado', 'En progreso', 'Resuelto'].includes(statusVal)) {
+                statusSelect.value = statusVal;
+            }
+
+            // Populate data fields
+            document.getElementById('ticket-description').textContent = issue.description || 'Sin descripción.';
+            document.getElementById('client-name').textContent = issue.clientName || 'Cliente';
+            document.getElementById('client-address').textContent = issue.address || 'No especificada';
+            document.getElementById('client-phone').textContent = issue.contactPhone || 'No registrado';
+            document.getElementById('client-email').textContent = issue.contactEmail || 'No registrado';
+            document.getElementById('ticket-classification').textContent = issue.classification || 'Media';
+            document.getElementById('support-assigned').textContent = issue.supportUserAssignedName || 'Sin asignar';
+
+            // Show resolution comment if resolved
+            if (issue.resolutionComment) {
+                document.getElementById('resolution-comment-item').style.display = 'flex';
+                document.getElementById('resolution-comment').textContent = issue.resolutionComment;
+            } else {
+                document.getElementById('resolution-comment-item').style.display = 'none';
+            }
+
+            // Render Threads
+            renderComments(comments);
+            renderNotes(notes);
+        }
+
+        // Render Comments Thread
+        function renderComments(comments) {
+            const container = document.getElementById('comments-thread-container');
+            container.innerHTML = '';
+
+            if (comments.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-thread">
+                        <div style="font-size: 2.5rem; opacity: 0.5;">💬</div>
+                        <p>No hay mensajes en este caso aún.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort chronologically
+            const sortedComments = [...comments].sort((a, b) => new Date(a.commentTimestamp) - new Date(b.commentTimestamp));
+
+            sortedComments.forEach(comment => {
+                const isClient = comment.userType === 'CLIENT';
+                const bubble = document.createElement('div');
+                bubble.className = `comment-bubble ${isClient ? 'comment-client' : 'comment-support'}`;
+
+                const timeStr = comment.commentTimestamp 
+                    ? new Date(comment.commentTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+                    : '';
+
+                const authorName = comment.userName || (isClient ? 'Cliente' : 'Soporte Técnico');
+                const authorClass = isClient ? 'comment-author-client' : 'comment-author-support';
+
+                bubble.innerHTML = `
+                    <div class="comment-meta">
+                        <span class="${authorClass}">${authorName} ${!isClient ? '(Soporte)' : ''}</span>
+                        <span>${timeStr}</span>
+                    </div>
+                    <div class="comment-text">${comment.description || ''}</div>
+                `;
+                container.appendChild(bubble);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Render Notes Thread (CU13)
+        function renderNotes(notes) {
+            const container = document.getElementById('notes-thread-container');
+            container.innerHTML = '';
+
+            if (notes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-thread">
+                        <div style="font-size: 2.5rem; opacity: 0.5;">📝</div>
+                        <p>No hay notas internas registradas.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort chronologically
+            const sortedNotes = [...notes].sort((a, b) => new Date(a.noteTimestamp) - new Date(b.noteTimestamp));
+
+            sortedNotes.forEach(note => {
+                const bubble = document.createElement('div');
+                bubble.className = 'note-bubble';
+
+                const timeStr = note.noteTimestamp 
+                    ? new Date(note.noteTimestamp).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })
+                    : '';
+
+                bubble.innerHTML = `
+                    <div class="comment-meta">
+                        <span class="note-author">🛠️ ${note.supportUserName || 'Técnico'}</span>
+                        <span>${timeStr}</span>
+                    </div>
+                    <div class="comment-text">${note.description || ''}</div>
+                `;
+                container.appendChild(bubble);
+            });
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // Add public comment
+        async function handleAddComment(e) {
+            e.preventDefault();
+
+            const textInput = document.getElementById('comment-text-input');
+            const submitBtn = document.getElementById('submit-comment-btn');
+            const formMessage = document.getElementById('comment-form-message');
+
+            const text = textInput.value.trim();
+            if (!text) return;
+
+            const payload = {
+                description: text,
+                userType: 'SUPPORT',
+                userId: supportUserId
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            formMessage.textContent = '';
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Error al agregar comentario');
+
+                textInput.value = '';
+                formMessage.textContent = '¡Comentario agregado!';
+                formMessage.style.color = '#10b981';
+
+                await loadTicketDetails();
+
+                setTimeout(() => { formMessage.textContent = ''; }, 3000);
+            } catch (err) {
+                console.error(err);
+                formMessage.textContent = 'Error al enviar. Intente de nuevo.';
+                formMessage.style.color = '#ef4444';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Mensaje';
+            }
+        }
+
+        // Add internal note (CU13)
+        async function handleAddNote(e) {
+            e.preventDefault();
+
+            const textInput = document.getElementById('note-text-input');
+            const submitBtn = document.getElementById('submit-note-btn');
+            const formMessage = document.getElementById('note-form-message');
+
+            const text = textInput.value.trim();
+            if (!text) return;
+
+            const payload = {
+                description: text,
+                supportUserId: supportUserId
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Guardando...';
+            formMessage.textContent = '';
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) throw new Error('Error al guardar nota');
+
+                textInput.value = '';
+                formMessage.textContent = '¡Nota guardada!';
+                formMessage.style.color = '#f59e0b';
+
+                await loadTicketDetails();
+
+                setTimeout(() => { formMessage.textContent = ''; }, 3000);
+            } catch (err) {
+                console.error(err);
+                formMessage.textContent = 'Error al guardar. Intente de nuevo.';
+                formMessage.style.color = '#ef4444';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Guardar Nota';
+            }
+        }
+
+        // Fetch technicians list for dropdown (Supervisor)
+        async function loadTechnicianList() {
+            const select = document.getElementById('technician-select');
+            try {
+                const response = await fetch('http://localhost:8080/Gateaway/gateway/support/technicians');
+                if (!response.ok) throw new Error('No se pudo recuperar la lista de técnicos');
+                
+                const list = await response.json();
+                select.innerHTML = '<option value="" disabled selected>Seleccione un soportista...</option>';
+                
+                if (list.length === 0) {
+                    select.innerHTML = '<option value="" disabled>No hay personal técnico disponible</option>';
+                    return;
+                }
+
+                list.forEach(tech => {
+                    const opt = document.createElement('option');
+                    opt.value = tech.id;
+                    opt.textContent = `${tech.name} ${tech.firstSurname} (${tech.email})`;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error(err);
+                select.innerHTML = '<option value="" disabled>Error al cargar técnicos</option>';
+            }
+        }
+
+        // Assign case to technician (Supervisor)
+        async function handleAssignTechnician() {
+            const select = document.getElementById('technician-select');
+            const assignBtn = document.getElementById('assign-btn');
+            const messageDiv = document.getElementById('assign-message');
+
+            const techId = parseInt(select.value, 10);
+            if (!techId) {
+                messageDiv.textContent = 'Seleccione un soportista primero.';
+                messageDiv.style.color = '#ef4444';
+                return;
+            }
+
+            assignBtn.disabled = true;
+            assignBtn.textContent = 'Asignando...';
+            messageDiv.textContent = '';
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/assign`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ supportUserId: techId })
+                });
+
+                if (!response.ok) throw new Error('Error al asignar caso');
+
+                messageDiv.textContent = '¡Caso asignado exitosamente!';
+                messageDiv.style.color = '#10b981';
+
+                // Realizar nota automática de asignación
+                const autoNoteText = `Caso asignado al soportista por el Supervisor.`;
+                await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: autoNoteText, supportUserId: supportUserId })
+                });
+
+                await loadTicketDetails();
+            } catch (err) {
+                console.error(err);
+                messageDiv.textContent = 'Error al asignar caso.';
+                messageDiv.style.color = '#ef4444';
+            } finally {
+                assignBtn.disabled = false;
+                assignBtn.textContent = 'Asignar';
+            }
+        }
+
+        // Update status of ticket
+        async function handleUpdateStatus() {
+            const select = document.getElementById('status-select');
+            const statusBtn = document.getElementById('status-btn');
+            const messageDiv = document.getElementById('status-message');
+            const resolutionCommentInput = document.getElementById('status-resolution-comment');
+
+            const status = select.value;
+            const resolutionComment = resolutionCommentInput.value.trim();
+
+            if (status === 'Resuelto' && !resolutionComment) {
+                messageDiv.textContent = 'Para resolver el caso debe proveer el detalle de la solución.';
+                messageDiv.style.color = '#ef4444';
+                resolutionCommentInput.focus();
+                return;
+            }
+
+            statusBtn.disabled = true;
+            statusBtn.textContent = 'Actualizando...';
+            messageDiv.textContent = '';
+
+            try {
+                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: status, resolutionComment: status === 'Resuelto' ? resolutionComment : null })
+                });
+
+                if (!response.ok) throw new Error('Error al cambiar de estado');
+
+                messageDiv.textContent = '¡Estado del caso actualizado con éxito!';
+                messageDiv.style.color = '#10b981';
+
+                // Realizar nota automática de estado
+                const autoNoteText = `Cambio de estado del caso a: "${status}".${status === 'Resuelto' ? ' Solución registrada.' : ''}`;
+                await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/notes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description: autoNoteText, supportUserId: supportUserId })
+                });
+
+                if (status === 'Resuelto') {
+                    resolutionCommentInput.value = '';
+                    document.getElementById('resolution-textarea-container').style.display = 'none';
+                }
+
+                await loadTicketDetails();
+            } catch (err) {
+                console.error(err);
+                messageDiv.textContent = 'Error al actualizar el estado del caso.';
+                messageDiv.style.color = '#ef4444';
+            } finally {
+                statusBtn.disabled = false;
+                statusBtn.textContent = 'Actualizar';
+            }
+        }
+
+        // Tab Switcher logic
+        function switchTab(tabId, btnEl) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // Deactivate all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Show target tab and set active button
+            document.getElementById(tabId).classList.add('active');
+            btnEl.classList.add('active');
+        }
+        window.switchTab = switchTab;
+    </script>
+</body>
+</html>
