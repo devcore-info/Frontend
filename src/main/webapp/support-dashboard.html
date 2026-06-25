@@ -276,6 +276,10 @@
     </div>
 
     <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://webapps-production-d1d7.up.railway.app';
+
         // Check authentication
         const email = localStorage.getItem('userEmail');
         const isSupervisorStr = localStorage.getItem('isSupervisor');
@@ -371,7 +375,7 @@
         async function cargarBandejaTickets(){
             try{
                 //1. Realiza petición fetch al endpoint de la API
-                const respuesta = await fetch ("http://localhost:8080/Gateaway/gateway/issues"); 
+                const respuesta = await fetch ("${API_BASE}/Gateaway/gateway/issues"); 
                 
                 //2. Convierte respuesta a json 
                 const tickets = await respuesta.json(); 

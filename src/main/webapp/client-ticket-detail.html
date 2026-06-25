@@ -431,6 +431,10 @@
     </div>
 
     <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://webapps-production-d1d7.up.railway.app';
+
         // Retrieve parameters and state
         const urlParams = new URLSearchParams(window.location.search);
         const ticketId = urlParams.get('id') || urlParams.get('ticketId');
@@ -460,7 +464,7 @@
         // Fetch and render ticket details
         async function loadTicketDetails() {
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}`);
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}`);
                 if (!response.ok) {
                     throw new Error(`Error en el servidor (${response.status})`);
                 }
@@ -589,7 +593,7 @@
         function connectWebSocket() {
             if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
             
-            const wsUrl = `ws://localhost:8080/Backend/chat-socket/${ticketId}/CLIENT/${clientId}`;
+            const wsUrl = `${API_BASE.replace('http://', 'ws://').replace('https://', 'wss://')}/Backend/chat-socket/${ticketId}/CLIENT/${clientId}`;
             socket = new WebSocket(wsUrl);
 
             socket.onmessage = function(event) {

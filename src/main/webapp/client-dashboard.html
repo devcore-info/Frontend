@@ -388,6 +388,10 @@
     </div>
 
     <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://webapps-production-d1d7.up.railway.app';
+
         document.addEventListener('DOMContentLoaded', () => {
             // Check authentication
             const email = localStorage.getItem('userEmail');
@@ -443,7 +447,7 @@
             selectEl.innerHTML = '<option value="" disabled selected>Cargando servicios contratados...</option>';
 
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/clients/${clientId}/services`);
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/clients/${clientId}/services`);
                 if (!response.ok) {
                     throw new Error('Error al cargar servicios');
                 }
@@ -503,7 +507,7 @@
             };
 
             try {
-                const response = await fetch('http://localhost:8080/Gateaway/gateway/issues', {
+                const response = await fetch('${API_BASE}/Gateaway/gateway/issues', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -547,7 +551,7 @@
             container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">Cargando solicitudes...</p>';
 
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/client/${clientId}`);
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/client/${clientId}`);
                 if (!response.ok) {
                     throw new Error('Error al cargar tickets');
                 }
@@ -618,7 +622,7 @@
             if (!clientId) return;
 
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/client/${clientId}`);
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/client/${clientId}`);
                 if (!response.ok) return;
 
                 const tickets = await response.json();

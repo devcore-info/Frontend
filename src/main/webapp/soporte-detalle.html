@@ -610,6 +610,10 @@
     </div>
 
     <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://webapps-production-d1d7.up.railway.app';
+
         // Retrieve params
         const urlParams = new URLSearchParams(window.location.search);
         const ticketId = urlParams.get('id') || urlParams.get('ticketId');
@@ -672,7 +676,7 @@
         // Fetch & render ticket details
         async function loadTicketDetails() {
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}`);
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}`);
                 if (!response.ok) {
                     throw new Error(`Servidor retornó código de estado ${response.status}`);
                 }
@@ -817,7 +821,7 @@
         function connectWebSocket() {
             if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) return;
             
-            const wsUrl = `ws://localhost:8080/Backend/chat-socket/${ticketId}/SUPPORT/${supportUserId}`;
+            const wsUrl = `${API_BASE.replace('http://', 'ws://').replace('https://', 'wss://')}/Backend/chat-socket/${ticketId}/SUPPORT/${supportUserId}`;
             socket = new WebSocket(wsUrl);
 
             socket.onmessage = function(event) {
@@ -926,7 +930,7 @@
             formMessage.textContent = '';
 
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/notes`, {
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}/notes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -955,7 +959,7 @@
         async function loadTechnicianList() {
             const select = document.getElementById('technician-select');
             try {
-                const response = await fetch('http://localhost:8080/Gateaway/gateway/support/technicians');
+                const response = await fetch('${API_BASE}/Gateaway/gateway/support/technicians');
                 if (!response.ok) throw new Error('No se pudo recuperar la lista de técnicos');
                 
                 const list = await response.json();
@@ -996,7 +1000,7 @@
             messageDiv.textContent = '';
 
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/assign`, {
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}/assign`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ supportUserId: techId })
@@ -1009,7 +1013,7 @@
 
                 // Realizar nota automática de asignación
                 const autoNoteText = `Caso asignado al soportista por el Supervisor.`;
-                await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/notes`, {
+                await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}/notes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ description: autoNoteText, supportUserId: supportUserId })
@@ -1048,7 +1052,7 @@
             messageDiv.textContent = '';
 
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/status`, {
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}/status`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status: status, resolutionComment: status === 'Resuelto' ? resolutionComment : null })
@@ -1061,7 +1065,7 @@
 
                 // Realizar nota automática de estado
                 const autoNoteText = `Cambio de estado del caso a: "${status}".${status === 'Resuelto' ? ' Solución registrada.' : ''}`;
-                await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/notes`, {
+                await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}/notes`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ description: autoNoteText, supportUserId: supportUserId })
@@ -1089,7 +1093,7 @@
             container.innerHTML = '';
 
             try {
-                const response = await fetch(`http://localhost:8080/Gateaway/gateway/issues/${ticketId}/bitacora`);
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/issues/${ticketId}/bitacora`);
                 if (!response.ok) throw new Error('Error al obtener bitácora');
                 
                 const list = await response.json();

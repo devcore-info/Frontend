@@ -7,6 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://webapps-production-d1d7.up.railway.app';
+
         // Proteger ruta
         const userEmail = localStorage.getItem('userEmail');
         const isSupervisor = localStorage.getItem('isSupervisor');

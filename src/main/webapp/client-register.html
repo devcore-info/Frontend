@@ -132,6 +132,10 @@
     </div>
 
     <script>
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://webapps-production-d1d7.up.railway.app';
+
         document.addEventListener('DOMContentLoaded', () => {
             const registerForm = document.getElementById('registerForm');
             const submitBtn = document.getElementById('submitBtn');
@@ -187,7 +191,7 @@
                 submitBtn.disabled = true;
 
                 try {
-                    const response = await fetch('http://localhost:8080/Gateaway/gateway/clients/register', {
+                    const response = await fetch('${API_BASE}/Gateaway/gateway/clients/register', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
