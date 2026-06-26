@@ -959,7 +959,7 @@
         async function loadTechnicianList() {
             const select = document.getElementById('technician-select');
             try {
-                const response = await fetch('${API_BASE}/Gateaway/gateway/support/technicians');
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/support/technicians`);
                 if (!response.ok) throw new Error('No se pudo recuperar la lista de técnicos');
                 
                 const list = await response.json();

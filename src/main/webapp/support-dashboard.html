@@ -375,7 +375,7 @@
         async function cargarBandejaTickets(){
             try{
                 //1. Realiza petición fetch al endpoint de la API
-                const respuesta = await fetch ("${API_BASE}/Gateaway/gateway/issues"); 
+                const respuesta = await fetch (`${API_BASE}/Gateaway/gateway/issues`); 
                 
                 //2. Convierte respuesta a json 
                 const tickets = await respuesta.json(); 

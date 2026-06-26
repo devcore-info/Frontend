@@ -107,7 +107,7 @@
             submitBtn.textContent = 'Registrando...';
 
             try {
-                const response = await fetch('${API_BASE}/Gateaway/gateway/support/register', {
+                const response = await fetch(`${API_BASE}/Gateaway/gateway/support/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
