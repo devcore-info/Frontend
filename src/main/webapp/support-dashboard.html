@@ -307,8 +307,6 @@
         if (isSupervisor) {
             dashboardWrapper.classList.add('supervisor-theme');
             roleBadgeContainer.innerHTML = '<span class="role-badge badge-supervisor">Supervisor</span>';
-            pendingVal.textContent = '12';
-            solvedVal.textContent = '48';
 
             // Supervisor actions list
             actionListContainer.innerHTML = `
@@ -336,8 +334,6 @@
             `;
         } else {
             roleBadgeContainer.innerHTML = '<span class="role-badge badge-technician">Soporte Técnico</span>';
-            pendingVal.textContent = '4';
-            solvedVal.textContent = '15';
 
             // Technician actions list
             actionListContainer.innerHTML = `
@@ -382,6 +378,12 @@
                 
                 //3. Imprime en consola para verificar los datos llegados del servidor
                 console.log("Datos recibidos: ", tickets); 
+                
+                // Calculate and display pending vs solved count dynamically
+                const pendingCount = tickets.filter(t => t.status !== 'Resuelto').length;
+                const solvedCount = tickets.filter(t => t.status === 'Resuelto').length;
+                pendingVal.textContent = pendingCount;
+                solvedVal.textContent = solvedCount;
                 
                 //4. Ordenar el array recibido de forma ascendente mediante el id
                 tickets.sort((a, b) => a.id - b.id); 
